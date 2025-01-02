@@ -1,0 +1,25 @@
+from flask import request
+from config.mongodb import mongo
+
+
+def create_todo_service():
+    data = request.get_json()
+
+    title = data.get("title", None)
+    description = data.get("description", None)
+
+    if title:
+        response = mongo.db.todos.insert_one({
+            "title": title,
+            "description": description,
+            "done": False
+        })
+        
+        return {
+            'id': str(response.inserted_id),
+            'title': title,
+            'description': description,
+            'done': False
+        }
+    else:
+        'Invalid payload', 400
