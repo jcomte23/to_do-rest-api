@@ -40,3 +40,21 @@ def get_todo_service(id):
     )
     result = json_util.dumps(data)
     return Response(result, mimetype="application/json")
+
+
+def update_todo_service(id):
+    data = request.get_json()
+
+    response = mongo.db.todos.update_one(
+        {
+            '_id': ObjectId(id)
+        },
+        {
+            "$set":data
+        }
+    )
+    
+    if response.modified_count >= 1:
+        return "todo updated succesfully", 200
+    else:
+        return 'todo not found', 404
