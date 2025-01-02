@@ -1,6 +1,6 @@
 from flask import Blueprint
 
-from services.todo import create_todo_service, get_todos_service
+from services.todo import create_todo_service, get_todo_service, get_todos_service
 
 
 todo = Blueprint('todo',__name__)
@@ -9,9 +9,9 @@ todo = Blueprint('todo',__name__)
 def get_todos():
     return get_todos_service()
 
-@todo.route('/id')
+@todo.route('/<id>')
 def get_todo(id):
-    return "get todo by an id"
+    return get_todo_service(id)
 
 @todo.route('/', methods=['POST'])
 def create_todo():
