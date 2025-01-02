@@ -1,4 +1,5 @@
-from flask import request
+from bson import json_util
+from flask import Response, request
 from config.mongodb import mongo
 
 
@@ -23,3 +24,8 @@ def create_todo_service():
         }
     else:
         'Invalid payload', 400
+        
+def get_todos_service():
+    data = mongo.db.todos.find()
+    result = json_util.dumps(data)
+    return Response(result, mimetype="application/json") 

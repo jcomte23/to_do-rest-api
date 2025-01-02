@@ -1,13 +1,13 @@
 from flask import Blueprint
 
-from services.todo import create_todo_service
+from services.todo import create_todo_service, get_todos_service
 
 
 todo = Blueprint('todo',__name__)
 
 @todo.route('/')
 def get_todos():
-    return "get all todos"
+    return get_todos_service()
 
 @todo.route('/id')
 def get_todo(id):
