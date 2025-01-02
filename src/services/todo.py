@@ -50,11 +50,20 @@ def update_todo_service(id):
             '_id': ObjectId(id)
         },
         {
-            "$set":data
+            "$set": data
         }
     )
-    
+
     if response.modified_count >= 1:
         return "todo updated succesfully", 200
     else:
         return 'todo not found', 404
+
+
+def delete_todo_service(id):
+    response = mongo.db.todos.delete_one({
+        "_id": ObjectId(id)
+    })
+
+    if response.deleted_count >= 1:
+        return 'Todo deleted successfully', 200
