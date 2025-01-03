@@ -1,6 +1,6 @@
 from bson import ObjectId, json_util
 from flask import Response, request
-from config.mongodb import mongo
+from src.config.mongodb import mongo
 
 
 def create_todo_service():

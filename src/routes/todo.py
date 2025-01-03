@@ -1,6 +1,6 @@
 from flask import Blueprint
 
-from services.todo import create_todo_service, delete_todo_service, get_todo_service, get_todos_service, update_todo_service
+from src.services.todo import create_todo_service, delete_todo_service, get_todo_service, get_todos_service, update_todo_service
 
 
 todo = Blueprint('todo',__name__)

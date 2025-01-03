@@ -49,7 +49,7 @@ Replace `your_mongodb_connection_string` with your actual MongoDB connection URI
 ### 6. Run the application:
 - Start the Flask application:
   ```bash
-  python main.py
+  python run.py
   ```
 - The API will be available at `http://127.0.0.1:5000/`.
 
