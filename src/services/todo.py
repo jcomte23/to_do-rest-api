@@ -1,30 +1,64 @@
 from bson import ObjectId, json_util
-from flask import Response, request
+from flask import Response, jsonify, request
 from src.config.mongodb import mongo
+from pymongo.errors import PyMongoError
 
 
 def create_todo_service():
-    data = request.get_json()
+    try:
+        data = request.get_json()
 
-    title = data.get("title", None)
-    description = data.get("description", None)
+        if not data:
+            return jsonify({
+                "status": "error",
+                "message": "The request body is empty",
+                "data": None
+            }), 400
 
-    if title:
+
+        title = data.get("title")
+        if not title:
+            return jsonify({
+                "status": "error",
+                "message": "The 'title' field is required",
+                "data": None
+            }), 400
+            
+        # Get 'description', optional if not provided        
+        description = data.get("description", None)
+
+        # Insert the new document into the database
         response = mongo.db.todos.insert_one({
             "title": title,
             "description": description,
             "done": False
         })
 
-        return {
-            'id': str(response.inserted_id),
-            'title': title,
-            'description': description,
-            'done': False
-        }
-    else:
-        'Invalid payload', 400
-
+        # Build a success response
+        return jsonify({
+            "status": "success",
+            "message": "Todo created successfully",
+            "data": {
+                "id": str(response.inserted_id),
+                "title": title,
+                "description": description,
+                "done": False
+            }
+        }), 201
+    except PyMongoError as e:
+        # Handle MongoDB-specific errors
+        return jsonify({
+            "status": "error",
+            "message": f"Database interaction error: {str(e)}",
+            "data": None
+        }), 500
+    except Exception as e:
+        # Handle other unexpected errors
+        return jsonify({
+            "status": "error",
+            "message": f"An unexpected error occurred: {str(e)}",
+            "data": None
+        }), 500
 
 def get_todos_service():
     data = mongo.db.todos.find()
