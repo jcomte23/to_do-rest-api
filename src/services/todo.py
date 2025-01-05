@@ -203,14 +203,98 @@ def get_todo_service(id):
 
 
 def update_todo_service(id):
-    data = request.get_json()
+    try:
+        if not ObjectId.is_valid(id):
+            return (
+                jsonify(
+                    {
+                        "status": "error",
+                        "message": "Invalid ID format",
+                        "data": None,
+                        "total_records": None,
+                    }
+                ),
+                400,
+            )
 
-    response = mongo.db.todos.update_one({"_id": ObjectId(id)}, {"$set": data})
+        data = request.get_json()
 
-    if response.modified_count >= 1:
-        return "todo updated succesfully", 200
-    else:
-        return "todo not found", 404
+        if not data or not isinstance(data, dict):
+            return (
+                jsonify(
+                    {
+                        "status": "error",
+                        "message": "The request body must contain valid JSON",
+                        "data": None,
+                        "total_records": None,
+                    }
+                ),
+                400,
+            )
+
+        response = mongo.db.todos.update_one({"_id": ObjectId(id)}, {"$set": data})
+
+        if response.matched_count == 0:
+            return (
+                jsonify(
+                    {
+                        "status": "error",
+                        "message": "Todo not found",
+                        "data": None,
+                        "total_records": None,
+                    }
+                ),
+                404,
+            )
+
+        if response.modified_count == 0:
+            return (
+                jsonify(
+                    {
+                        "status": "success",
+                        "message": "No changes made to the Todo",
+                        "data": None,
+                        "total_records": None,
+                    }
+                ),
+                200,
+            )
+
+        return (
+            jsonify(
+                {
+                    "status": "success",
+                    "message": "Todo updated successfully",
+                    "data": None,
+                    "total_records": None,
+                }
+            ),
+            200,
+        )
+    except PyMongoError as e:
+        return (
+            jsonify(
+                {
+                    "status": "error",
+                    "message": f"Database interaction error: {str(e)}",
+                    "data": None,
+                    "total_records": None,
+                }
+            ),
+            500,
+        )
+    except Exception as e:
+        return (
+            jsonify(
+                {
+                    "status": "error",
+                    "message": f"An unexpected error occurred: {str(e)}",
+                    "data": None,
+                    "total_records": None,
+                }
+            ),
+            500,
+        )
 
 
 def delete_todo_service(id):
