@@ -61,9 +61,39 @@ def create_todo_service():
         }), 500
 
 def get_todos_service():
-    data = mongo.db.todos.find()
-    result = json_util.dumps(data)
-    return Response(result, mimetype="application/json")
+    try:
+        data = list(mongo.db.todos.find()) 
+
+        if not data:
+            return Response(
+                json_util.dumps({
+                    "status": "success",
+                    "message": "No todos found",
+                    "data": []
+                }),
+                mimetype="application/json",
+                status=200
+            )
+
+        serialized_data = json_util.dumps({
+            "status": "success",
+            "message": "Todos retrieved successfully",
+            "data": data
+        })
+
+        return Response(serialized_data, mimetype="application/json", status=200) 
+    except PyMongoError as e:
+        return jsonify({
+            "status": "error",
+            "message": f"Database interaction error: {str(e)}",
+            "data": None
+        }), 500
+    except Exception as e:
+        return jsonify({
+            "status": "error",
+            "message": f"An unexpected error occurred: {str(e)}",
+            "data": None
+        }), 500
 
 
 def get_todo_service(id):
