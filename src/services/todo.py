@@ -298,7 +298,67 @@ def update_todo_service(id):
 
 
 def delete_todo_service(id):
-    response = mongo.db.todos.delete_one({"_id": ObjectId(id)})
+    try:
+        if not ObjectId.is_valid(id):
+            return (
+                jsonify(
+                    {
+                        "status": "error",
+                        "message": "Invalid ID format",
+                        "data": None,
+                        "total_records": None,
+                    }
+                ),
+                400,
+            )
 
-    if response.deleted_count >= 1:
-        return "Todo deleted successfully", 200
+        response = mongo.db.todos.delete_one({"_id": ObjectId(id)})
+
+        if response.deleted_count == 0:
+            return (
+                jsonify(
+                    {
+                        "status": "error",
+                        "message": "Todo not found",
+                        "data": None,
+                        "total_records": None,
+                    }
+                ),
+                404,
+            )
+
+        return (
+            jsonify(
+                {
+                    "status": "success",
+                    "message": "Todo deleted successfully",
+                    "data": None,
+                    "total_records": None,
+                }
+            ),
+            200,
+        )
+    except PyMongoError as e:
+        return (
+            jsonify(
+                {
+                    "status": "error",
+                    "message": f"Database interaction error: {str(e)}",
+                    "data": None,
+                    "total_records": None,
+                }
+            ),
+            500,
+        )
+    except Exception as e:
+        return (
+            jsonify(
+                {
+                    "status": "error",
+                    "message": f"An unexpected error occurred: {str(e)}",
+                    "data": None,
+                    "total_records": None,
+                }
+            ),
+            500,
+        )
