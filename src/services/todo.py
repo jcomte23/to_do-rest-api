@@ -12,7 +12,8 @@ def create_todo_service():
             return jsonify({
                 "status": "error",
                 "message": "The request body is empty",
-                "data": None
+                "data": None,
+                "total_records": None,
             }), 400
 
 
@@ -21,20 +22,18 @@ def create_todo_service():
             return jsonify({
                 "status": "error",
                 "message": "The 'title' field is required",
-                "data": None
+                "data": None,
+                "total_records": None,
             }), 400
-            
-        # Get 'description', optional if not provided        
+                  
         description = data.get("description", None)
 
-        # Insert the new document into the database
         response = mongo.db.todos.insert_one({
             "title": title,
             "description": description,
             "done": False
         })
 
-        # Build a success response
         return jsonify({
             "status": "success",
             "message": "Todo created successfully",
@@ -46,18 +45,18 @@ def create_todo_service():
             }
         }), 201
     except PyMongoError as e:
-        # Handle MongoDB-specific errors
         return jsonify({
             "status": "error",
             "message": f"Database interaction error: {str(e)}",
-            "data": None
+            "data": None,
+            "total_records": None,
         }), 500
     except Exception as e:
-        # Handle other unexpected errors
         return jsonify({
             "status": "error",
             "message": f"An unexpected error occurred: {str(e)}",
-            "data": None
+            "data": None,
+            "total_records": None,
         }), 500
 
 def get_todos_service():
@@ -69,7 +68,8 @@ def get_todos_service():
                 json_util.dumps({
                     "status": "success",
                     "message": "No todos found",
-                    "data": []
+                    "data": [],
+                    "total_records": None,
                 }),
                 mimetype="application/json",
                 status=200
@@ -78,7 +78,8 @@ def get_todos_service():
         serialized_data = json_util.dumps({
             "status": "success",
             "message": "Todos retrieved successfully",
-            "data": data
+            "data": data,
+            "total_records": len(data),
         })
 
         return Response(serialized_data, mimetype="application/json", status=200) 
@@ -86,13 +87,15 @@ def get_todos_service():
         return jsonify({
             "status": "error",
             "message": f"Database interaction error: {str(e)}",
-            "data": None
+            "data": None,
+            "total_records": None,
         }), 500
     except Exception as e:
         return jsonify({
             "status": "error",
             "message": f"An unexpected error occurred: {str(e)}",
-            "data": None
+            "data": None,
+            "total_records": None,
         }), 500
 
 
